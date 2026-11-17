@@ -132,6 +132,28 @@
     if (!hlsPromise) hlsPromise = new Promise(function (resolve, reject) { var script = document.createElement('script'); script.src = HLS_URL; script.onload = function () { window.Hls ? resolve(window.Hls) : reject(new Error('HLS unavailable')); }; script.onerror = function () { script.remove(); hlsPromise = null; reject(new Error('HLS failed to load')); }; document.head.appendChild(script); });
     return hlsPromise;
   }
+  function audioTracks() {
+    if (hls) return hls.audioTracks.map(function (track, index) { return {index:index, label:track.name || track.lang || 'Audio ' + (index + 1), language:track.lang, selected:hls.audioTrack === index}; });
+    var tracks = video.audioTracks;
+    return tracks ? Array.from(tracks).map(function (track, index) { return {index:index, label:track.label || track.language || 'Audio ' + (index + 1), language:track.language, selected:track.enabled}; }) : [];
+  }
+  function renderAudioTracks() {
+    var tracks = audioTracks();
+    $('audio-options').innerHTML = tracks.length > 1 ? tracks.map(function (track) {
+      var label = track.label + (track.language && track.label.toLowerCase() !== track.language.toLowerCase() ? ' (' + track.language + ')' : '');
+      return '<button class="language-option" data-audio="' + track.index + '" aria-pressed="' + track.selected + '">' + escapeHTML(label) + '</button>';
+    }).join('') : '';
+    $('audio-note').textContent = tracks.length > 1 ? 'Choose an audio track for this stream.' : 'No alternative audio tracks are available for this stream on this device.';
+  }
+  $('audio-button').addEventListener('click', function () { renderAudioTracks(); openDialog('audio-dialog', this); });
+  $('audio-options').addEventListener('click', function (event) {
+    var button = event.target.closest('[data-audio]'); if (!button) return;
+    var index = +button.dataset.audio;
+    if (hls && hls.audioTracks[index]) hls.audioTrack = index;
+    else if (video.audioTracks && video.audioTracks[index]) Array.from(video.audioTracks).forEach(function (track, i) { track.enabled = i === index; });
+    closeDialog(false);
+  });
+  if (video.audioTracks && video.audioTracks.addEventListener) ['addtrack','removetrack','change'].forEach(function (name) { video.audioTracks.addEventListener(name, function () { if (activeDialog && activeDialog.id === 'audio-dialog') renderAudioTracks(); }); });
   function cleanup() { clearTimeout(retryTimer); clearTimeout(stallTimer); if (hls) { hls.destroy(); hls = null; } video.pause(); video.removeAttribute('src'); video.load(); }
   function updateArrowSwitching() {
     $('channel-keys').setAttribute('aria-pressed', arrowChannelSwitching);
@@ -168,6 +190,7 @@
         var Hls = await loadHls(); if (token !== playbackToken) return;
         if (!Hls.isSupported()) { status('HLS playback is not supported in this browser. Try a newer browser or another device.'); return; }
         hls = new Hls({maxBufferLength:15, maxMaxBufferLength:30, backBufferLength:15, enableWorker:true});
+        [Hls.Events.AUDIO_TRACKS_UPDATED, Hls.Events.AUDIO_TRACK_SWITCHED].forEach(function (eventName) { hls.on(eventName, function () { if (token === playbackToken && activeDialog && activeDialog.id === 'audio-dialog') renderAudioTracks(); }); });
         hls.on(Hls.Events.ERROR, function (_event, data) { if (data.fatal && token === playbackToken) { if (hls) { hls.destroy(); hls = null; } failed(token); } });
         hls.loadSource(url); hls.attachMedia(video);
       }

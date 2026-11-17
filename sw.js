@@ -1,5 +1,5 @@
 'use strict';
-var CACHE = 'signal-shell-v10';
+var CACHE = 'signal-shell-v11';
 var SHELL = ['./index.html', './style.css', './playlist.js', './channels.js', './app.js', './pwa.js', './manifest.webmanifest', './icons/icon-tv-192.png', './icons/icon-tv-512.png', './icons/icon-tv-maskable.png', './icons/apple-touch-icon.png', './icons/favicon.png'];
 var BASE = new URL('./', self.location.href);
 function needsLegacyMigration(keys) {
