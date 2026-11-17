@@ -1,0 +1,40 @@
+{
+  "name": "Signal \u2014 India Live TV",
+  "short_name": "Signal TV",
+  "description": "Indian live TV for the big screen.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "icons": [
+    {
+      "src": "icons/icon-tv-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-tv-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-tv-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./",
+  "lang": "en-IN",
+  "categories": [
+    "news",
+    "entertainment"
+  ],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ]
+}

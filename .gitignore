@@ -1,0 +1,23 @@
+.DS_Store
+Thumbs.db
+
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.keystore
+*.jks
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+*.apk
+*.aab
+
+# Editor and temporary files
+.idea/
+*.log
+__pycache__/
