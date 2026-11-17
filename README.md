@@ -10,7 +10,38 @@ Serve this folder over HTTPS or on localhost (opening `index.html` directly does
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000`. On a TV or another device, deploy the folder to an HTTPS static host; localhost refers to that device itself. Install from the browser's install menu when supported. PWA installation and fullscreen availability vary by browser and TV platform. No Android APK is included.
+Open `http://localhost:8000`. On a TV or another device, deploy the folder to an HTTPS static host; localhost refers to that device itself. Install from the browser's install menu when supported. PWA installation and fullscreen availability vary by browser and TV platform.
+
+## Docker and TryCloudflare
+
+Install Docker and the Docker Compose plugin, then run:
+
+```sh
+docker compose up -d --build
+docker compose logs -f tunnel
+```
+
+Cloudflared prints a `https://...trycloudflare.com` address in the tunnel logs. Open that address on your TV or another device; the tunnel provides the HTTPS origin needed for PWA features. Press Ctrl+C to stop following the logs (the containers keep running). The app is also available locally at `http://localhost:8000` on the Docker host.
+
+This is a temporary Quick Tunnel: the address changes when the tunnel is recreated or restarted, and the app is publicly accessible to anyone with the address. Because browser storage and PWA installations are tied to the origin, favorites, saved channels and installations do not carry over to a new tunnel address. Quick Tunnels are intended for testing, not production. Keep Docker running while using the app. To stop and remove the containers, run:
+
+```sh
+docker compose down
+```
+
+After changing app files, rebuild with `docker compose up -d --build`. Increment the service worker cache version as described below when publishing changes.
+
+## Android APK
+
+The lightweight Android wrapper in `android/` opens the configured HTTPS site in the device's Android System WebView. It needs Android 6.0 or later, a working WebView and network access. It is a WebView wrapper, not a Chromium-generated WebAPK. The current URL is the temporary TryCloudflare address in `MainActivity.java`; update it and rebuild when the tunnel changes. Playback and TV remote behavior depend on the device's WebView and require device testing.
+
+To build, install JDK 17 and Android SDK Platform 34 and Build Tools 34.0.0, set `ANDROID_HOME` to the SDK directory, then run:
+
+```sh
+android/build.sh
+```
+
+The output is `android/build/signal-tv.apk`. By default it is signed with the local Android debug keystore and is intended for testing. For a distributable release, supply `KEYSTORE`, `KEY_ALIAS`, `KEYSTORE_PASSWORD` and `KEY_PASSWORD` in the environment for your own persistent release signing key. Keep that key safe: future APK updates must use the same signing key. The APK bundles the app files and opens them if the configured site fails to load. The local fallback has separate browser storage, and PWA service worker installation is unavailable there. Live streams and remote channel updates still require network access.
 
 ## Using the app
 

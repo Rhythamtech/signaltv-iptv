@@ -1,0 +1,13 @@
+*
+!Dockerfile
+!nginx.conf
+!index.html
+!style.css
+!app.js
+!channels.js
+!playlist.js
+!pwa.js
+!sw.js
+!manifest.webmanifest
+!icons/
+!icons/**

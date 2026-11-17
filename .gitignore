@@ -21,3 +21,6 @@ build/
 .idea/
 *.log
 __pycache__/
+
+# Android package build output
+android/build/
